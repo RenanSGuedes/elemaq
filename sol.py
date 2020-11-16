@@ -71,7 +71,7 @@ print("Portanto kfs = 1 + {:.2f} * ({:.2f} - 1)\n kfs = {:.2f}".format(qshear, k
 # Calculo de tau0
 torque = float(input("Torque (N * m): "))
 
-tau0 = (16 * kfs * torque)/(pi * (d * .001)**(3))
+tau0 = (16 * torque)/(pi * (d * .001)**(3))
 
 tau_max = kfs * tau0
 
@@ -143,4 +143,31 @@ print("b = {:.2f}".format(b1))
 n = ((tau_max/1000000)/a1)**(1/b1)
 
 print("A peça resistirá por volta de {} ciclos.".format(int(n)))
+
+# Nova temperatura
+
+kdVsTemperature = {
+  "20": 1, 
+  "50": 1.01, 
+  "100": 1.02,
+  "150": 1.025,
+  "200": 1.020,
+  "250": 1,
+  "300": .975,
+  "350": .943,
+  "400": .9,
+  "450": .843,
+  "500": .708,
+  "550": .672,
+  "600": .549
+}
+
+newTemperature = input("Nova temperatura: ")
+
+kd = kdVsTemperature[newTemperature]
+
+se_new = ka * kb * kc * kd * sel
+
+
+
 
