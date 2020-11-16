@@ -1,5 +1,13 @@
 from math import pi, pow, log10
 
+'''
+Uma barra sólida redonda, com 25 mm de diâmetro, tem um
+sulco de profundidade 2.5 mm com um raio de 2.5 mm usinado 
+nela. A barra é feita de aço AISI 1018 CD (estirado a frio) 
+e sujeita a um torque puramente reverso de 200 N * m. Para a
+curva deste material, considere f = 0,9.
+'''
+
 # Solução
 
 # Tabela A-18
@@ -12,6 +20,7 @@ from math import pi, pow, log10
 # Sy (Resistência ao escoamento) [MPa]
 # Hb (Dureza Brinell) [Adimensional]
 
+print("Tabela A-20, pg.1040")
 sut = int(input('Resistência a tração (MPa): '))
 sy = int(input('Resistência ao escoamento (MPa): '))
 hb = int(input('Dureza Brinell: (Adimensional) '))
@@ -21,9 +30,11 @@ hb = int(input('Dureza Brinell: (Adimensional) '))
 if sut <= 1400: # MPa
   sel = .5 * sut
   print("Se' (Resistência a fadiga do corpo de prova) <= 200 kpsi (1400 MPa)")
+  print("-------------------------------------------------------------------")
 else:
   sel = 700 # MPa
-  print("Se' (Resistência a fadiga do corpo de prova) <= 100 kpsi (700 MPa)")
+  print("Se' (Resistência a fadiga do corpo de prova) > 200 kpsi (1400 MPa)")
+  print("-------------------------------------------------------------------")
 
 # Calcular a tensão de cisalhamento máxima na torção
 # tau_max = kfs * tau0 
@@ -45,43 +56,49 @@ else:
 
 # É preciso obter as razões r/d e D/d
 
-r = float(input("Raio do entalhe (mm): "))
-d = float(input("Distância entre sulcos na região do entalhe (mm): "))
-D = float(input("Distância entre as laterais (onde não há entalhe) (mm): "))
+r = float(input("Raio do entalhe (r, em mm): "))
+d = float(input("Diâmetro na região do entalhe (d, em mm): "))
+D = float(input("Diâmetro da barra (onde não há entalhe) (D, em mm): "))
+print("---------------------------------------------------------------")
 
 print("r/d = {:.3f}".format(r/d))
 print("D/d = {:.3f}".format(D/d))
 print("----------------------------")
-print("Obtenha kts pela tabela A-15-15!")
+print("Obtenha kts pela tabela A-15 pg.1026 (ver geometria da peça)")
 
-kts = float(input("Valor de kts obtido do gráfico: "))
-print("---------------------------------------------")
+kts = float(input("Valor de kts: "))
+print("---------------------------------------------------------------")
 
 # Obter fator de sensibilidade (Figura 6.21)
 
-print("Obter o valor de qshear para\n r = notch radius {:.2f} mm\n Hb = {}".format(r, hb))
+print("Obter o valor de qshear para\nr = notch radius {:.2f} mm\nHb = {} (Ver figura 6-21 pg.296)".format(r, hb))
 
-qshear = float(input("Valor de qshear extraído: "))
+qshear = float(input("Valor de qshear: "))
 print("------------------------------------------")
 
 kfs = 1 + qshear * (kts - 1)
 
-print("Portanto kfs = 1 + {:.2f} * ({:.2f} - 1)\n kfs = {:.2f}".format(qshear, kts, kfs))
+print("Portanto kfs = 1 + {:.2f} * ({:.2f} - 1)\nkfs = {:.2f}".format(qshear, kts, kfs))
+print("------------------------------------------")
 
 # Calculo de tau0
 torque = float(input("Torque (N * m): "))
+
+print("------------------------------------------")
 
 tau0 = (16 * torque)/(pi * (d * .001)**(3))
 
 tau_max = kfs * tau0
 
 print("Tensão de cisalhamento máxima na torção: {:.3f} MPa".format(tau_max/pow(10, 6)))
-
+print("------------------------------------------")
+print("Acabamento superficial:")
 # Calcular o limite de resistência a fadiga (Se)
 
 # Antes é preciso encontrar os fatores modificadores (ka, kb, kc, kd, ke, kf)
 
 acabamento_superficial = input("[R]etificado, [U]sinado ou laminado a frio, [L]aminado a quente, [F]orjado: ")
+print("------------------------------------------")
 
 if acabamento_superficial == "R":
   a = 1.58
@@ -100,18 +117,16 @@ else:
 ka = a * pow(sut, b)
 
 # kb = Fator de tamanho
-if d >= (.11 * 25.4) and d <= (2 * 25.4):
-  kb = pow((d/25.4)/.3, -.107)
-elif d > (2 * 25.4) and d <= (10 * 25.4):
-  kb = .91 * pow(d/25.4, -.157)
-elif d >= 2.79 and d <= 51:
+if d >= 2.79 and d <= 51:
   kb = pow(d/7.62, -.107)
 else:
   kb = 1.51 * pow(d, -.157)
 
 # kc = Tipo de carregamento
 
+print("Carregamento")
 load = input("[B]ending, [A]xial ou [T]orsion: ")
+print("------------------------------------------")
 
 if load == "B":
   kc = 1
@@ -124,9 +139,10 @@ print("Fatores modificadores\nka = {:.3f}\nkb = {:.3f}\nkc = {:.3f}".format(ka, 
 
 se = ka * kb * kc * sel
 
-print("Se (Limite de resistência a fadiga) = {:.3f} MPa".format(se))
+print("-> Se (Limite de resistência a fadiga) = {:.3f} MPa".format(se))
+print("------------------------------------------")
 
-f = float(input("Fator de carregamento (Adimensional): "))
+f = float(input("Fator de carregamento (f, adimensional): "))
 
 if load == "T":
   ssu = .67 * sut
@@ -143,6 +159,7 @@ print("b = {:.2f}".format(b1))
 n = ((tau_max/1000000)/a1)**(1/b1)
 
 print("A peça resistirá por volta de {} ciclos.".format(int(n)))
+print("------------------------------------------")
 
 # Nova temperatura
 
@@ -163,11 +180,26 @@ kdVsTemperature = {
 }
 
 newTemperature = input("Nova temperatura: ")
+print("------------------------------------------")
 
 kd = kdVsTemperature[newTemperature]
 
 se_new = ka * kb * kc * kd * sel
 
+if load == "T":
+  ssu = .67 * sut
+  a1 = pow(f * ssu, 2)/se_new
+  b1 = -(1/3) * log10(f * ssu/se_new)
+else:
+  a1 = pow(f * sut, 2)/se_new
+  b1 = -(1/3) * log10(f * sut/se_new)
 
+# Calcular o número de ciclos
+print("a = {:.2f}".format(a1))
+print("b = {:.2f}".format(b1))
+print("------------------------------------------")
 
+n = ((tau_max/1000000)/a1)**(1/b1)
 
+print("A {}°C a peça resistirá por volta de {} ciclos.".format(newTemperature, int(n)))
+print("------------------------------------------")
